@@ -72,8 +72,8 @@ def run_pipeline():
         ############ 2D Segmentation #############
         plot_save_palette('atr', './Output', dataset_configs_2d)
         plot_save_palette('pascal', './Output', dataset_configs_2d)
-        logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=, settings_2d, dataset_configs_2d)
-        logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=, settings_2d, dataset_configs_2d)
+        logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
+        logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
         combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
 
         ############ 2D to 3D Projection #############
