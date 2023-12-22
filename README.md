@@ -7,7 +7,7 @@
 - Mentor: Yueyu Hu (yh3986@nyu.edu)
 
 ## Notes
-The Jypyter notebook "Experiment.ipynb" was only used to experiment with the SCHP 2D segmentation model. It is not a part of out automated pipeline. However, the code in this notebook is the same as the code in this repository except minor changes.
+The Jypyter notebook "Experiment.ipynb" was only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except minor changes.
 
 The 3D data we used for testing were provided by our mentor.
 
