@@ -17,7 +17,7 @@ Some experiment results can be found under the "ExperimentResults" folder.
 ### Environment Setup
 Our pipeline is expected to be run on Linux with Python 3.8.
 
-For the 2D segmentation model SCHP, we used the paper authors' implementation. Their implementation requires a GPU to run. Their GitHub repository can be found [here](https://github.com/GoGoDuck912/Self-Correction-Human-Parsing).
+For the 2D segmentation model SCHP, we use the paper authors' implementation. Their implementation requires a GPU to run. Their GitHub repository can be found [here](https://github.com/GoGoDuck912/Self-Correction-Human-Parsing).
 
 Run the following commands to install necessary dependencies.
 ```
