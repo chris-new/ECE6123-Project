@@ -1,17 +1,17 @@
 # 3D human parsing via multi-camera 2D analysis and 2D-to-3D reprojection
 
 ## Group Members
-- Enji Hu (eh3094@nyu.edu)
-- Chen Yang (cy2478@nyu.edu)
 - Fengze Zhang (fz2244@nyu.edu)
+- Chen Yang (cy2478@nyu.edu)
+- Enji Hu (eh3094@nyu.edu)
 - Mentor: Yueyu Hu (yh3986@nyu.edu)
 
 ## Notes
-The Jypyter notebook "Experiment.ipynb" was only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except minor changes.
+The Jypyter notebook `Experiment.ipynb` was only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except minor changes.
 
 The 3D data we used for testing were provided by our mentor.
 
-Some experiment results can be found under the "ExperimentResults" folder.
+Some experiment results can be found under the folder `ExperimentResults`.
 
 ## How to Run Our Code
 ### Environment Setup
@@ -34,11 +34,11 @@ mkdir Inputs
 mkdir Outputs
 ```
 
-Put input 3D data under the "Inputs" folder.
+Put input 3D data under the folder `Inputs`.
 
-Run the python script.
+Run the Python script.
 ```
 python run_pipeline.py
 ```
 
-The output data (3D segmentation results) will be under the "Outputs" folder. The 2D segmentation masks are saved under the "segmentation/2d_outputs" folder.
+The output data (3D segmentation results) will be under the folder `Outputs`. The 2D segmentation masks are saved under the folder `segmentation/2d_outputs`.
