@@ -14,6 +14,11 @@ The 3D data we used for testing were provided by our mentor.
 Some experiment results can be found under the folder `ExperimentResults`.
 
 ## How to Run Our Code
+First of all, download this repository to the computer.
+```
+git clone https://github.com/chris-new/ECE6123-Project.git
+```
+
 ### Environment Setup
 Our pipeline is expected to be run on Linux with Python 3.8.
 
@@ -26,9 +31,8 @@ git clone https://github.com/GoGoDuck912/Self-Correction-Human-Parsing.git
 ```
 
 ### Run Pipeline
-Download this repository to the computer.
+Go to the repo directory and make necessary directories for inputs and outputs.
 ```
-git clone https://github.com/chris-new/ECE6123-Project.git
 cd ECE6123-Project
 mkdir Inputs
 mkdir Outputs
