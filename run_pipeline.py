@@ -8,6 +8,7 @@ from urllib.request import urlretrieve
 from segmentation.label_merge import get_left_right_labeled_results
 from segmentation.model import run_2d_image_segmentation
 from segmentation.utils import plot_save_palette
+from projection.projection import project, reproject
 
 dataset_configs_2d = {
     'lip': {
@@ -36,7 +37,10 @@ dataset_configs_2d = {
         'labels': ['Background', 'Head', 'Torso', 'Left Arms', 'Right Arms', 'Upper Legs', 'Left Legs', 'Right Legs']
     }
 }
-
+setting_projection = {
+    'img_width': 400,
+    'img_height' : 500,
+}
 settings_2d = {
     'gpu': '0', # gpu: None or 0,...,etc.
     'input_size': (512, 512),
@@ -58,17 +62,21 @@ def download_pretrained_model_parameters():
             urlretrieve(url, path)
 
 def run_pipeline():
-    ############ 3D to 2D Projection #############
     
-    
-    ############ 2D Segmentation #############
-    plot_save_palette('atr', './Output', dataset_configs_2d)
-    plot_save_palette('pascal', './Output', dataset_configs_2d)
-    logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=, settings_2d, dataset_configs_2d)
-    logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=, settings_2d, dataset_configs_2d)
-    combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
+    files = os.listdir("Inputs")
+    models = [file for file in files if file.endswith('.obj')]
+    for model in models:
+        ############ 3D to 2D Projection #############
+        Image, Depth, Extrinsic = project(model, setting_projection['img_width'], setting_projection['img_height'])
+        
+        ############ 2D Segmentation #############
+        plot_save_palette('atr', './Output', dataset_configs_2d)
+        plot_save_palette('pascal', './Output', dataset_configs_2d)
+        logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=, settings_2d, dataset_configs_2d)
+        logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=, settings_2d, dataset_configs_2d)
+        combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
 
-    ############ 2D to 3D Projection #############
+        ############ 2D to 3D Projection #############
 
 if __name__ == '__main__':
     download_pretrained_model_parameters()
