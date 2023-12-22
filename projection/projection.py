@@ -138,7 +138,8 @@ def project(model_path, img_width, img_height):
 
 
 def reproject(Masks, Depth, intrinsic, Extrinsic):
-    Pcd = []
+    # Pcd = []
+    Pcd = o3d.geometry.PointCloud()
     for i in range(len(Masks)):
         rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
             Masks[i], o3d.geometry.Image(Depth[i]), convert_rgb_to_intensity=False, depth_scale=1)
@@ -148,3 +149,29 @@ def reproject(Masks, Depth, intrinsic, Extrinsic):
 
 def save_pcd(pcd, file_path):
     o3d.io.write_point_cloud(file_path, pcd, True)
+
+def knn_for_all_conflict_points(Pcd):
+    K = 100
+
+    # knn for one point
+    def knn(location):
+        points = Pcd.points
+        distances = np.linalg.norm(points - location, ord=2, axis=1)
+        inds = np.argsort(distances)[:K]
+        labels = Pcd.colors[inds]
+        unique_labels, counts = np.unique(labels, axis=0, return_counts=True)
+        return unique_labels[np.argsort(counts)[-1]]
+    
+    uniques, counts = np.unique(Pcd.points, axis=0, return_counts=True)
+    duplicate_points = uniques[counts > 1]
+    all_inds = np.arange(0, len(Pcd.points))
+    for point in duplicate_points:
+        inds = all_inds[np.all(Pcd.points == point, axis=1)]
+        colors = Pcd.colors[inds]
+        if len(np.unique(colors, axis=0)) == 1:
+            continue
+        else:
+            label = knn(point)
+        Pcd.colors[inds][:] = label
+    
+    return Pcd
