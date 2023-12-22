@@ -30,6 +30,8 @@ Download this repository to the computer.
 ```
 git clone https://github.com/chris-new/ECE6123-Project.git
 cd ECE6123-Project
+mkdir Inputs
+mkdir Outputs
 ```
 
 Put input 3D data under the "Inputs" folder.
