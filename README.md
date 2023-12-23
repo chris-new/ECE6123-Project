@@ -1,5 +1,5 @@
 # 3D human parsing via multi-camera 2D analysis and 2D-to-3D reprojection
-
+![alt text]( /pipeline.drawio.png)
 ## Group Members
 - Fengze Zhang (fz2244@nyu.edu)
 - Chen Yang (cy2478@nyu.edu)
