@@ -127,9 +127,9 @@ def project(model_path, renderer_pc, intrinsic):
     Extrinsic = []
     for i in range(4):
         image, depth, extrinsic = get_view(renderer_pc, intrinsic, model, center=Center[i], eye=Eye[i])
-        Image += image
-        Depth += depth
-        Extrinsic += extrinsic
+        Image.append(image)
+        Depth.append(depth)
+        Extrinsic.append(extrinsic)
     return Image, Depth, Extrinsic
 
 def reproject(Masks, Depth, intrinsic, Extrinsic):
