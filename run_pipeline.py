@@ -71,12 +71,13 @@ def run_pipeline():
     models = [file for file in files if file.endswith('.obj')]
     intrinsic =  o3d.camera.PinholeCameraIntrinsic(
         o3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
+    renderer_pc = o3d.visualization.rendering.OffscreenRenderer(setting_projection['img_width'], setting_projection['img_height'])
     print("Found models: {}".format(models))
     for model in models:
         print("Processsing model {}".format(model))
 
         ############ 3D to 2D Projection #############
-        Image, Depth, Extrinsic = project(model, setting_projection['img_width'], setting_projection['img_height'], intrinsic)
+        Image, Depth, Extrinsic = project(model, renderer_pc, intrinsic)
         print("Retrived {} views of model {}".format(len(Image), model))
         
         ############ 2D Segmentation #############

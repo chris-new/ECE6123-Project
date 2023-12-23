@@ -117,9 +117,7 @@ def read_segmentation(file_name, depth):
     return rgbd_image
 
 
-def project(model_path, img_width, img_height, intrinsic):
-    img_width, img_height = (400, 500)
-    renderer_pc = o3d.visualization.rendering.OffscreenRenderer(img_width, img_height)
+def project(model_path, renderer_pc, intrinsic):
     model = read_mesh(model_path)
     
     Center = [[0.25,0,0], [-0.25,0,0], [-0.25,0,0], [0.25,0,0]]
