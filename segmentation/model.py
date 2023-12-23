@@ -178,7 +178,7 @@ def run_2d_image_segmentation(dataset_name, settings, dataset_configs, input_ima
 
     # define input dataset
     if input_images:
-        dataset = CustomDatasetFromMemory([input_images], input_size=input_size, transform=transform)
+        dataset = CustomDatasetFromMemory(input_images, input_size=input_size, transform=transform)
     else:
         dataset = CustomDatasetFromFiles(root_path=settings['input_dir'], input_size=input_size, transform=transform)
     dataloader = DataLoader(dataset)
