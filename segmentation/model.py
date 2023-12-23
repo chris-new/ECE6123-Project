@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 # SCHP model is used based on their GitHub repo.
 # Need to add the repo's path so that the model can be used.
-__repo_path__ = os.path.abspath(os.path.abspath(os.getcwd()) + "./Self-Correction-Human-Parsing")
+__repo_path__ = os.path.abspath(os.path.join(os.path.abspath(os.getcwd()), "Self-Correction-Human-Parsing"))
 if not os.path.exists(__repo_path__):
     print("Error: Path of SCHP model not found. Cannot run model.py in this project.")
     sys.exit()
