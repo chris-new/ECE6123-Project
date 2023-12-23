@@ -17,6 +17,7 @@ Some experiment results can be found under the folder `ExperimentResults`.
 First of all, download this repository to the computer.
 ```
 git clone https://github.com/chris-new/ECE6123-Project.git
+cd ECE6123-Project
 ```
 
 ### Environment Setup
@@ -31,9 +32,8 @@ git clone https://github.com/GoGoDuck912/Self-Correction-Human-Parsing.git
 ```
 
 ### Run Pipeline
-Go to the repo directory and make necessary directories for inputs and outputs.
+Make necessary directories for inputs and outputs.
 ```
-cd ECE6123-Project
 mkdir Inputs
 mkdir Outputs
 ```
