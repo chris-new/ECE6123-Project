@@ -5,6 +5,8 @@
 import os
 from urllib.request import urlretrieve
 
+import open3d as o3d
+
 from segmentation.label_merge import get_left_right_labeled_results
 from segmentation.model import run_2d_image_segmentation
 from segmentation.utils import plot_save_palette
