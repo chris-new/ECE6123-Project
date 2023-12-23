@@ -7,7 +7,7 @@
 - Mentor: Yueyu Hu (yh3986@nyu.edu)
 
 ## Notes
-The Jypyter notebook `Experiment.ipynb` is only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except for minor changes. This notebook has been tested in Colab environment. 'OpenModelRefactored.ipynb' is for model projections and was developed in WSL locally. Codes inside can be used to view projection results and 3D segmentation results if collaborating with 'Experiment.ipynb'.
+The Jypyter notebook `Experiment.ipynb` is only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except for minor changes. This notebook has been tested in Colab environment. `OpenModelRefactored.ipynb` is for model projections and was developed in WSL locally. Codes inside can be used to view projection results and 3D segmentation results if collaborating with `Experiment.ipynb`.
 
 The 3D data we used for testing were provided by our mentor.
 
