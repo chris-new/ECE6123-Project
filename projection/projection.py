@@ -117,12 +117,10 @@ def read_segmentation(file_name, depth):
     return rgbd_image
 
 
-def project(model_path, img_width, img_height):
+def project(model_path, img_width, img_height, intrinsic):
     img_width, img_height = (400, 500)
     renderer_pc = o3d.visualization.rendering.OffscreenRenderer(img_width, img_height)
     model = read_mesh(model_path)
-    intrinsic =  o3d.camera.PinholeCameraIntrinsic(
-        o3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
     
     Center = [[0.25,0,0], [-0.25,0,0], [-0.25,0,0], [0.25,0,0]]
     Eye = [[0, 0, 1.25], [0.5, 0, -1.25], [0.5, 0, -1.25], [0.75, 0, 0.75]]
@@ -135,7 +133,6 @@ def project(model_path, img_width, img_height):
         Depth += depth
         Extrinsic += extrinsic
     return Image, Depth, Extrinsic
-
 
 def reproject(Masks, Depth, intrinsic, Extrinsic):
     # Pcd = []
