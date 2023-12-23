@@ -3,14 +3,15 @@
 # Run this Python to run the whole pipeline.
 
 import os
-from urllib.request import urlretrieve
+
+import matplotlib.pyplot as plt
 
 import gdown
 import open3d as o3d
 
 from segmentation.label_merge import get_left_right_labeled_results
 from segmentation.model import run_2d_image_segmentation
-from segmentation.utils import plot_save_palette
+from segmentation.utils import plot_save_palette, put_labels_as_colors_in_seg_mask
 from projection.projection import project, reproject, save_pcd, knn_for_all_conflict_points
 
 dataset_configs_2d = {
@@ -43,8 +44,8 @@ dataset_configs_2d = {
 setting_projection = {
     'img_width': 400,
     'img_height' : 500,
-    'Mesh': "Inputs",
-    'Output_Pcd': "Outputs"
+    'Mesh': "./Inputs",
+    'Output_Pcd': "./Outputs"
 }
 settings_2d = {
     'gpu': '0', # gpu: None or 0,...,etc.
@@ -87,7 +88,7 @@ def run_pipeline():
         print("Processsing model {}".format(model))
 
         ############ 3D to 2D Projection #############
-        Image, Depth, Extrinsic = project(model, renderer_pc, intrinsic)
+        Image, Depth, Extrinsic = project(os.path.join(setting_projection['Mesh'],model), renderer_pc, intrinsic)
         print("Retrived {} views of model {}".format(len(Image), model))
         
         ############ 2D Segmentation #############
@@ -97,6 +98,7 @@ def run_pipeline():
         logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
         logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
         combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
+        combined_results = [put_labels_as_colors_in_seg_mask(cr, dataset_configs_2d) for cr in combined_results]
         print("2D segmentation completed")
 
         ############ 2D to 3D Projection #############
@@ -104,8 +106,8 @@ def run_pipeline():
         Pcd = reproject(combined_results, Depth, intrinsic, Extrinsic)
         print("Start merging conflict points")
         Pcd_merged = knn_for_all_conflict_points(Pcd)
-        save_file_name = f"{os.path.basename(model)}_pcd.ply"
-        save_pcd(Pcd_merged, os.join(setting_projection["Output_Pcd"], save_file_name))
+        save_file_name = f"{os.path.basename(model)[:-4]}_pcd.pcd"
+        save_pcd(Pcd_merged, os.path.join(setting_projection["Output_Pcd"], save_file_name))
         print("Output of {} saved to {}".format(model, save_file_name))
 
 if __name__ == '__main__':

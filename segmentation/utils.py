@@ -68,3 +68,13 @@ def display_image_results(input_list, datasets, settings):
             plt.title(fn_out[:fn_out.index('.')])
             plt.axis('off')
             plt.show()
+
+def put_labels_as_colors_in_seg_mask(img, dataset_configs):
+    h,w = img.shape
+    img_rgb = np.zeros((h,w,3))
+    img = np.asarray(img)
+    num_classes = dataset_configs['target']['num_classes']
+    palette = get_palette(dataset_configs['target']['num_classes'])
+    for i in range(num_classes):
+        img_rgb[img[:,:] == i, :] = palette[i*3:i*3+3]
+    return img_rgb
