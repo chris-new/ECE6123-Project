@@ -9,7 +9,7 @@
 ## Notes
 The Jypyter notebook `Experiment.ipynb` is only used to experiment with the SCHP 2D segmentation model. It is not a part of our automated pipeline. However, the code in this notebook is the same as the code in this repository except for minor changes. This notebook has been tested in Colab environment. `OpenModelRefactored.ipynb` is for model projections and was developed in WSL locally. Codes inside can be used to view projection results and 3D segmentation results if collaborating with `Experiment.ipynb`.
 
-Core codes in these two notebooks have been refactored and reorganized to run_pipeline.py for an end-to-end operation. `Experiment_Pipeline.ipynb` is run on Google Colab to test whether the pipeline is working. If the local environment setup fails, `Experiment_Pipeline.ipynb` should be able to provide a way to run on Google Colab.
+Core codes in these two notebooks have been refactored and reorganized to `run_pipeline.py` for an end-to-end operation. `Experiment_Pipeline.ipynb` is run on Google Colab to test whether the pipeline is working. If the local environment setup fails, `Experiment_Pipeline.ipynb` should be able to provide a way to run on Google Colab.
 
 The 3D data we used for testing were provided by our mentor.
 
