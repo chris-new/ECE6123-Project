@@ -8,7 +8,7 @@ from urllib.request import urlretrieve
 from segmentation.label_merge import get_left_right_labeled_results
 from segmentation.model import run_2d_image_segmentation
 from segmentation.utils import plot_save_palette
-from projection.projection import project, reproject
+from projection.projection import project, reproject, save_pcd, knn_for_all_conflict_points
 
 dataset_configs_2d = {
     'lip': {
@@ -40,6 +40,8 @@ dataset_configs_2d = {
 setting_projection = {
     'img_width': 400,
     'img_height' : 500,
+    'Mesh': "Inputs",
+    'Output_Pcd': "Outputs"
 }
 settings_2d = {
     'gpu': '0', # gpu: None or 0,...,etc.
@@ -63,11 +65,13 @@ def download_pretrained_model_parameters():
 
 def run_pipeline():
     
-    files = os.listdir("Inputs")
+    files = os.listdir(setting_projection['Mesh'])
     models = [file for file in files if file.endswith('.obj')]
+    intrinsic =  o3d.camera.PinholeCameraIntrinsic(
+        o3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
     for model in models:
         ############ 3D to 2D Projection #############
-        Image, Depth, Extrinsic = project(model, setting_projection['img_width'], setting_projection['img_height'])
+        Image, Depth, Extrinsic = project(model, setting_projection['img_width'], setting_projection['img_height'], intrinsic)
         
         ############ 2D Segmentation #############
         plot_save_palette('atr', './Output', dataset_configs_2d)
@@ -77,6 +81,10 @@ def run_pipeline():
         combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
 
         ############ 2D to 3D Projection #############
+        Pcd = reproject(combined_results, Depth, intrinsic, Extrinsic)
+        Pcd_merged = knn_for_all_conflict_points(Pcd)
+        save_file_name = f"{os.path.basename(model)}_pcd.ply"
+        save_pcd(Pcd_merged, os.join(setting_projection["Output_Pcd"], save_file_name))
 
 if __name__ == '__main__':
     download_pretrained_model_parameters()
