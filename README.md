@@ -46,5 +46,4 @@ Run the Python script.
 ```
 python run_pipeline.py
 ```
-
-The output data (3D segmentation results) will be under the folder `Outputs`. The 2D segmentation masks are saved under the folder `segmentation/2d_outputs`.
+The 2D segmentation masks are saved under the folder `segmentation/2d_outputs`. The output segmented point cloud will be saved under the folder `Outputs` in a `.pcd` binary file that can be read and visualized using `Open3D'.  
