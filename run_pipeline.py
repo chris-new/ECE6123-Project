@@ -82,8 +82,8 @@ def run_pipeline():
         
         ############ 2D Segmentation #############
         print("Passed to 2D segmentation")
-        plot_save_palette('atr', './Output', dataset_configs_2d)
-        plot_save_palette('pascal', './Output', dataset_configs_2d)
+        plot_save_palette('atr', setting_projection['Output_Pcd'], dataset_configs_2d)
+        plot_save_palette('pascal', setting_projection['Output_Pcd'], dataset_configs_2d)
         logic_results1, class_results_1, imgs1 = run_2d_image_segmentation('atr', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
         logic_results2, class_results_2, imgs2 = run_2d_image_segmentation('pascal', input_images=Image, settings=settings_2d, dataset_configs=dataset_configs_2d)
         combined_results = get_left_right_labeled_results(class_results_2, class_results_1, dataset_configs_2d)
@@ -99,5 +99,5 @@ def run_pipeline():
         print("Output of {} saved to {}".format(model, save_file_name))
 
 if __name__ == '__main__':
-    download_pretrained_model_parameters()
+    # download_pretrained_model_parameters()
     run_pipeline()
