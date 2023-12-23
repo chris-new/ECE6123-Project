@@ -5,6 +5,7 @@
 import os
 from urllib.request import urlretrieve
 
+import gdown
 import open3d as o3d
 
 from segmentation.label_merge import get_left_right_labeled_results
@@ -63,7 +64,16 @@ def download_pretrained_model_parameters():
         if os.path.exists(path):
             print("Pretrained model already downloaded: {}".format(path))
         else:
-            urlretrieve(url, path)
+            gdown.download(url, path, quiet=False)
+    # for name, ds in dataset_configs_2d.items():
+        # if name == 'target':
+            # continue
+        # url = ds['pretrained_model_download_link']
+        # path = os.path.join(settings_2d['checkpoint_dir'], ds['pretrained_model_filename'])
+        # if os.path.exists(path):
+        #     print("Pretrained model already downloaded: {}".format(path))
+        # else:
+        #     urlretrieve(url, path)
 
 def run_pipeline():
     
@@ -99,5 +109,5 @@ def run_pipeline():
         print("Output of {} saved to {}".format(model, save_file_name))
 
 if __name__ == '__main__':
-    # download_pretrained_model_parameters()
+    download_pretrained_model_parameters()
     run_pipeline()
