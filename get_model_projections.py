@@ -15,16 +15,22 @@ import re
 from projection.projection import project, reproject, save_pcd, knn_for_all_conflict_points, mesh_to_point_cloud, recenter_model
 parser = argparse.ArgumentParser(description='get model projection via open3d headless rendering')
 
-parser.add_argument('--path', type=str, default='/home/fengze/ECE6123-Project', help='path to the project')
+parser.add_argument('--path', type=str, default='.', help='path to the project')
 parser.add_argument('--input', type=str, default='/home/huzi/code/pointersect-modified/dataset/THuman-uniform-800K/', help='path to the project')
-parser.add_argument('--radius', type=float, default=0.8, help='radius of camera sphere')
+parser.add_argument('--radius', type=float, default=0.4, help='radius of camera sphere')
 parser.add_argument('--distance', type=float, default=2.6, help='distance of camera to the center')
-parser.add_argument('--img-width', type=int, default=1920, help='the width of each view')
-parser.add_argument('--img-height', type=int, default=1080, help='the height of each view')
-parser.add_argument('--view-output-path', type=str, default='/home/fengze/ECE6123-Project/cdcl/input', help='path where the view outputs to be')
-parser.add_argument('--depth-output-path', type=str, default='/home/fengze/ECE6123-Project/depths', help='path where the depth outputs to be')
-parser.add_argument('--extrinsic-output-path', type=str, default='/home/fengze/ECE6123-Project/extrinsics', help='path where the extrinsics outputs to be')
-
+parser.add_argument('--img-width', type=int, default=800, help='the width of each view')
+parser.add_argument('--img-height', type=int, default=800, help='the height of each view')
+parser.add_argument('--view-output-path', type=str, default='./cdcl/input', help='path where the view outputs to be')
+parser.add_argument('--depth-output-path', type=str, default='./depths', help='path where the depth outputs to be')
+parser.add_argument('--extrinsic-output-path', type=str, default='./extrinsics', help='path where the extrinsics outputs to be')
+parser.add_argument('--intrinsic-output-path', type=str, default='./intrinsics', help='path where the intrinsic matrix to be saved')
+parser.add_argument('--fx', type=int, default=1050, help='fx of the camera')
+parser.add_argument('--fy', type=int, default=1050, help='fy of the camera')
+parser.add_argument('--viewport_width', type=int, default=1000, help='width of the viewport')
+parser.add_argument('--viewport_height', type=int, default=1000, help='height of the viewport')
+parser.add_argument('--cx', type=int , default=500, help='cx of the camera')
+parser.add_argument('--cy', type=int , default=500, help='cy of the camera')
 
 
 
@@ -45,28 +51,40 @@ def main(args):
     intrinsic =  o3d.camera.PinholeCameraIntrinsic(
         o3d.camera.PinholeCameraIntrinsicParameters.Kinect2ColorCameraDefault)
     
+    # add intrinsic setting to make projections right
+    intrinsic.set_intrinsics(width=1, 
+                             height=1,
+                             fx=args.fx, 
+                             fy=args.fy, 
+                             cx=args.cx, 
+                             cy=args.cy)
+    
+    np.save(os.path.join(args.intrinsic_output_path, "intrinsic_matrix"), intrinsic.intrinsic_matrix)
+    print(f"save the intrinsic matrix to {args.intrinsic_output_path}")
     renderer_pc = o3d.visualization.rendering.OffscreenRenderer(args.img_width, args.img_height)
     radius = args.radius
     
+    # change views: avoid views from bottom 
+    # because of the performance of the 2d pipeline
     eyes = [
         [0,0,args.distance],
-        # [1*radius,0,1.35],
-        # [0,1*radius,1.35],
-        # [-1*radius,0,1.35],
-        # [0,-1*radius,1.35],
-        [0.71*radius,-0.71*radius,args.distance],
+        [1*radius,0,args.distance],
+        [0,1*radius,args.distance],
+        # [-1*radius,0,args.distance],
+        # [0,-1*radius,args.distance],
+        # [0.71*radius,-0.71*radius,args.distance],
         [0.71*radius,0.71*radius,args.distance],
-        [-0.71*radius,-0.71*radius,args.distance],
+        # [-0.71*radius,-0.71*radius,args.distance],
         [-0.71*radius,0.71*radius,args.distance],
         
         [0,0,-args.distance],
-        # [1*radius,0,-1.35],
-        # [0,1*radius,-1.35],
-        # [-1*radius,0,-1.35],
-        # [0,-1*radius,-1.35],
-        [0.71*radius,-0.71*radius,-args.distance],
+        # [1*radius,0,-args.distance],
+        [0,1*radius,-args.distance],
+        [-1*radius,0,-args.distance],
+        # [0,-1*radius,-args.distance],
+        # [0.71*radius,-0.71*radius,-args.distance],
         [0.71*radius,0.71*radius,-args.distance],
-        [-0.71*radius,-0.71*radius,-args.distance],
+        # [-0.71*radius,-0.71*radius,-args.distance],
         [-0.71*radius,0.71*radius,-args.distance],
 
     ]
@@ -79,7 +97,7 @@ def main(args):
         
         
         ############ 3D to 2D Projection #############
-        Image, Depth, Extrinsic = project(model, centers, eyes,renderer_pc, intrinsic, args.img_width, args.img_height)
+        Image, Depth, Extrinsic = project(model, centers, eyes,renderer_pc, intrinsic, args.viewport_width, args.viewport_width)
         print("Retrived {} views of model {}".format(len(Image), model))
 
         for i in range(len(Image)):
