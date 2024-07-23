@@ -28,7 +28,6 @@ def render(geometries):
 
 
 # side effect: will set renderer_pc's extrinsic camera
-# side effect: will set renderer_pc's extrinsic camera
 def get_view(renderer_pc, intrinsic, model, center, eye, up=[0,1,0], extrinsic=None, img_width=400, img_height=500):
 
 
@@ -42,13 +41,17 @@ def get_view(renderer_pc, intrinsic, model, center, eye, up=[0,1,0], extrinsic=N
     # texture = o3d.geometry.Image(texture)
     # material.albedo_img = texture
     material.aspect_ratio = 1.0
-    material.shader = "defaultLit"
+    material.base_color = [0.7, 0.7, 0.7, 1.0]
+    material.shader = "defaultUnlit"
 
 
 
     # renderer_pc.scene.scene.set_sun_light([-1, -1, -1], [1.0, 1.0, 1.0], 100000)
-    renderer_pc.scene.set_lighting(renderer_pc.scene.LightingProfile.NO_SHADOWS, (0, 0, 0))
-    renderer_pc.scene.scene.enable_sun_light(True)
+    renderer_pc.scene.scene.enable_sun_light(False)
+    
+    renderer_pc.scene.set_lighting(renderer_pc.scene.LightingProfile.HARD_SHADOWS, (0, 0, 0))
+    # renderer_pc.scene.set_lighting(renderer_pc.scene.LightingProfile.NO_SHADOWS, (0, 0, 0))
+    # renderer_pc.scene.scene.enable_sun_light(True)
 
     renderer_pc.scene.add_geometry("model", model, material)
     
@@ -87,7 +90,57 @@ def get_view(renderer_pc, intrinsic, model, center, eye, up=[0,1,0], extrinsic=N
     # renderer_pc.scene.remove_geometry("axis")
     return (image, depth_image, renderer_pc.scene.camera.get_view_matrix())
 
+def recenter_model(model):
+    mean_cov = model.compute_mean_and_covariance()
+    mean = mean_cov[0]
+    covariance_matrix = mean_cov[1]
 
+    eigen_values, eigen_vectors = np.linalg.eigh(covariance_matrix)
+
+    # 特征向量与特征值关联，并按特征值排序（特征值最大的对应主要的方向）
+    eig_index = np.argsort(eigen_values)[::-1]
+    principal_axes = eigen_vectors[:, eig_index]
+    # principal_axes = principal_axes.transpose()
+
+    # the first axis of pca should be y axis for a human
+    principal_axes[:,[0,1]] = principal_axes[:,[1,0]]
+
+    if principal_axes[:, 0] [0]< 0:
+        principal_axes[:,0]*= -1
+    if principal_axes[:,1][1] < 0:
+        principal_axes[:,1]*= -1
+    if principal_axes[:,2][2] < 0:
+        principal_axes[:,2]*= -1
+    # print(principal_axes)
+
+    # new_z_axis = np.array([principal_axes[:,2][0], 0, principal_axes[:,2][1]])
+
+    # z_axis = np.array([0, 0, 1])
+
+    # rotation_axis = np.cross(z_axis, new_z_axis)
+    # # print(rotation_axis)
+
+    # # 计算旋转角度（dot product和arccos）
+    # cos_theta = np.dot(z_axis, new_z_axis) / (np.linalg.norm(z_axis) * np.linalg.norm(new_z_axis))
+    # angle = np.arccos(cos_theta)
+
+    # # 计算旋转矩阵（Rodrigues' rotation formula）
+    # K = np.array([
+    #     [0, -rotation_axis[2], rotation_axis[1]],
+    #     [rotation_axis[2], 0, -rotation_axis[0]],
+    #     [-rotation_axis[1], rotation_axis[0], 0]
+    # ])
+    # identity_matrix = np.eye(3)
+    # rotation_matrix = identity_matrix + np.sin(-angle) * K + (1 - np.cos(-angle)) * (K @ K)
+
+    # model.rotate(rotation_matrix, center=mean)
+    model.rotate(principal_axes.transpose(), center=mean)
+
+    # mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1.5, origin=mean)
+    # mesh_frame.rotate(principal_axes, center=mean)
+    # coorinate = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1, origin=[0., 0., 0.])
+    # o3d.visualization.draw_geometries([model, mesh_frame,coorinate ] )
+    
 def lookat(center, eye, up):
     f = (eye - center)
     f /= np.linalg.norm(f)
@@ -119,7 +172,10 @@ def rgbd_to_pointcloud(rgbd, intrinsic, extrinsic_camera):
     #pcd.transform([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     return pcd
 
-
+def rgbd_to_pointcloud2(rgbd, intrinsic, extrinsic_path):
+    extrinsic  = np.load(extrinsic_path).astype(np.float32)
+    pcd =  o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, intrinsic, flip(extrinsic))
+    return pcd
 def downsample_rescale(pcd, voxel_size=0.00001, scale=10000):
     downsampled_pc = pcd.voxel_down_sample(voxel_size)
     # use mean as the center for now
@@ -143,22 +199,36 @@ def read_segmentation(file_name, depth):
         rgb, o3d.geometry.Image(depth), convert_rgb_to_intensity=False, depth_scale=1)
     return rgbd_image
 
+def read_segmentation2(view_path, depth_path):
+    # for read npy files
+    rgb = np.load(view_path).astype(np.uint8)
+    rgb = o3d.geometry.Image(rgb)
+    depth = np.load(depth_path).astype(np.float32)
+    ## for read image files
+    #rgb = o3d.io.read_image(file_name)
+    rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
+        rgb, o3d.geometry.Image(depth), convert_rgb_to_intensity=False, depth_scale=1)
+    return rgbd_image
 
-def project(model_path, centers, eyes, renderer_pc, intrinsic):
+
+
+def project(model_path, centers, eyes, renderer_pc, intrinsic, img_width, img_height):
     model = read_point_cloud(model_path)
     #IDEA recenter and rescale the model 
     points = np.asarray(model.points)
-    points /= 450
+    points 
     points -= points.mean(0)
     model.transform(np.array([[1,0,0,0], 
                             [0,1,0,0],
                             [0,0,1,0],
                             [0,0,0,1]]))
+    recenter_model(model)
+
     Image = []
     Depth = []
     Extrinsic = []
     for i in range(len(eyes)):
-        image, depth, extrinsic = get_view(renderer_pc, intrinsic, model, center=centers[i], eye=eyes[i])
+        image, depth, extrinsic = get_view(renderer_pc, intrinsic, model, center=centers[i], eye=eyes[i], up=[0,1,0], img_width=img_width, img_height=img_height)
         Image.append(image)
         Depth.append(depth)
         Extrinsic.append(extrinsic)
@@ -217,4 +287,20 @@ def knn(K, location, tree, colors):
         # inds = np.argsort(distances)[:K]
         # labels = colors[inds]
         unique_labels, counts = np.unique(labels, axis=0, return_counts=True)
-        return unique_labels[np.argsort(counts)[-1]]
+        background_label = [0,0,0]
+        result = unique_labels[np.argsort(counts)[-1]]
+        #IDEA assumption for human models: no backgrounds
+        if (np.array_equal(result, background_label)):
+            # if there is other choice
+            if len(unique_labels) > 1:
+                result = unique_labels[np.argsort(counts)[-2]]
+            # choose the cloest point 
+            else:
+                distances, inds = tree.query(location, k=4000)
+                non_background_distances = []
+                for i in range(4000):
+                    if not np.array_equal(colors[inds[i]], background_label):
+                        non_background_distances.append((distances[i], colors[inds[i]]))
+                if non_background_distances:
+                    result = min(non_background_distances, key=lambda x: x[0])[1]
+        return result
