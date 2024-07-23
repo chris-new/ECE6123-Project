@@ -3,3 +3,6 @@ cdcl/docker
 cdcl/__pycache__
 depths
 extrinsics
+*.png
+*.ply
+*.npy
