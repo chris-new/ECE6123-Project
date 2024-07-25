@@ -3,6 +3,10 @@ cdcl/docker
 cdcl/__pycache__
 depths
 extrinsics
+intrinsics
 *.png
 *.ply
 *.npy
+*.Identifier
+*.tar.gz
+*.zip
